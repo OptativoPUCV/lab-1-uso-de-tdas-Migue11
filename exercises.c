@@ -43,6 +43,12 @@ Al finalizar retorna la lista creada.
 
 List* crea_lista() {
    List* L = create_list();
+    for (int i = 1; i <= 10; i++) {
+        int *elemento = (int *)malloc(sizeof(int));
+        *elemento = i;
+        pushBack(L, elemento); 
+    }
+
    return L;
 }
 
@@ -51,9 +57,17 @@ Ejercicio 2.
 Crea una función que reciba una lista de enteros (int*) y 
 retorne la suma de sus elementos.
 */
-int sumaLista(List *L) {
-   return 0;
+
+int sumaLista(List* L){
+   int suma = 0;
+   int* dato = (int*)first(L);
+   while (dato != NULL) {
+       suma += *dato;
+       dato = (int*)next(L);
+   }
+   return suma;
 }
+
 
 /*
 Ejercicio 3.
@@ -64,8 +78,12 @@ Asume que popCurrent luego de eliminar un elemento se
 posiciona en el elemento anterior.
 */
 
-void eliminaElementos(List*L, int elem){
-
+void eliminaElementos(List *L, int elem) {
+   for (void* data = first(L); data != NULL; data = next(L)) {
+       if (*(int*)data == elem) {
+           popCurrent(L);
+       }
+   }
 }
 
 /*
@@ -76,6 +94,19 @@ Puedes usar una pila auxiliar.
 */
 
 void copia_pila(Stack* P1, Stack* P2) {
+   List* aux = create_list();
+   void* dato = first(P1);
+   while (dato != NULL) {
+       pushBack(aux, dato);
+       dato = next(P1);
+   }
+   dato = first(aux);
+   while (dato != NULL) {
+       pushBack(P2, dato);
+       dato = next(aux);
+   }
+   free(aux);
+   
 }
 
 /*
@@ -86,6 +117,38 @@ paraéntesis balanceados. Retorna 1 si están balanceados,
 */
 
 int parentesisBalanceados(char *cadena) {
-   return 0;
-}
+   List* pila = create_list();
+
+   for (int i = 0; cadena[i] != '\0'; i++) {
+       char c = cadena[i];
+
+       if (c == '(' || c == '{' || c == '[') {
+           char *p = malloc(sizeof(char));
+           *p = c;
+           pushBack(pila, p);
+       } else if (c == ')' || c == '}' || c == ']') {
+           if (get_size(pila) == 0) {
+               return 0; // No hay paréntesis de apertura correspondiente
+           }
+           char *top = (char *)popBack(pila);
+           if ((c == ')' && *top != '(') ||
+               (c == '}' && *top != '{') ||
+               (c == ']' && *top != '[')) {
+               free(top);
+               return 0; // Los paréntesis no coinciden
+           }
+           free(top);
+       }
+   }
+
+   int balanceado = get_size(pila) == 0;
+
+   // Liberar cualquier paréntesis que quede en la pila
+   while (get_size(pila) > 0) {
+       free(popBack(pila));
+   }
+
+   free(pila);
+   return balanceado;
+
 
